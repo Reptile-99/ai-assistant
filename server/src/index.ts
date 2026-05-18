@@ -1,6 +1,8 @@
-import dotenv from 'dotenv';
-// Load env vars FIRST — before any other imports that may initialize singletons
-dotenv.config();
+// ⚠️ MUST be the very first line — require() is NOT hoisted by TypeScript.
+// Using import would hoist ALL imports before dotenv.config() runs,
+// causing service singletons (Gemini, OpenAI) to initialize without env vars.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+require('dotenv').config();
 
 import express from 'express';
 import cors from 'cors';
