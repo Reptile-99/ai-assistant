@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteDocument = exports.getDocument = exports.getDocuments = exports.uploadDocument = void 0;
 const fs_1 = __importDefault(require("fs"));
-const pdf = require('pdf-parse');
+const pdf = require('pdf-parse-new');
 const Document_1 = __importDefault(require("../models/Document"));
 const error_middleware_1 = require("../middlewares/error.middleware");
 const rag_service_1 = require("../services/rag.service");

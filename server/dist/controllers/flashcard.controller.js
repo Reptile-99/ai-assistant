@@ -7,7 +7,7 @@ exports.deleteFlashcard = exports.updateFlashcard = exports.getFlashcards = expo
 const express_validator_1 = require("express-validator");
 const Document_1 = __importDefault(require("../models/Document"));
 const Flashcard_1 = __importDefault(require("../models/Flashcard"));
-const ai_service_1 = require("../services/ai.service");
+const ai_provider_1 = require("../services/ai.provider");
 const error_middleware_1 = require("../middlewares/error.middleware");
 // Validation Rules
 exports.generateFlashcardValidation = [
@@ -36,7 +36,7 @@ const generateFlashcards = async (req, res, next) => {
         if (document.userId.toString() !== req.user.id) {
             return next(new error_middleware_1.ErrorResponse('Not authorized to access this document', 401));
         }
-        const result = await ai_service_1.openAIService.generateFlashcards(document.content, count, difficulty, document.title);
+        const result = await ai_provider_1.aiProvider.generateFlashcards(document.content, count, difficulty, document.title);
         const flashcardsToInsert = result.flashcards.map((card) => ({
             userId: req.user.id,
             documentId: document._id,

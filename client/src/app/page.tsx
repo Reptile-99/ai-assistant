@@ -287,14 +287,13 @@ export default function LandingPage() {
             >
               <div className="absolute inset-0 bg-violet-500/20 rounded-[2.5rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
               <div className="relative glass border border-white/10 rounded-[2.5rem] p-4 shadow-2xl overflow-hidden aspect-[16/10] sm:aspect-[16/9]">
-                <div className="w-full h-full rounded-2xl bg-secondary/50 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.01] transition-transform duration-700">
-                  <div className="absolute inset-0 gradient-primary opacity-5" />
-                  <div className="flex flex-col items-center gap-4 z-10">
-                    <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-xl">
-                      <Layout className="w-10 h-10 text-violet-400" />
-                    </div>
-                    <span className="text-xl font-bold tracking-widest text-violet-300 opacity-50 uppercase">Dashboard Preview</span>
-                  </div>
+                <div className="w-full h-full rounded-2xl relative overflow-hidden group-hover:scale-[1.01] transition-transform duration-700">
+                  <img 
+                    src="/dashboard-mockup.png" 
+                    alt="AI Study Assistant Premium Dashboard Mockup" 
+                    className="w-full h-full object-cover rounded-xl"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
                 </div>
               </div>
             </motion.div>
@@ -414,32 +413,44 @@ export default function LandingPage() {
 
             <div className="relative">
               <div className="absolute inset-0 gradient-primary blur-[100px] opacity-20 animate-pulse" />
-              <div className="relative rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl glass">
-                <div className="p-6 bg-white/5 border-b border-white/5 flex items-center justify-between">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/20" />
-                    <div className="w-3 h-3 rounded-full bg-amber-500/20" />
-                    <div className="w-3 h-3 rounded-full bg-emerald-500/20" />
-                  </div>
-                  <div className="text-xs font-mono text-muted-foreground">analyzer.study_ai</div>
+              <div className="relative rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl glass min-h-[400px] flex flex-col justify-between">
+                {/* Background AI brain image with overlay */}
+                <div className="absolute inset-0 z-0">
+                  <img 
+                    src="/ai-brain.png" 
+                    alt="AI Neural Network Brain Illustration" 
+                    className="w-full h-full object-cover opacity-30 blur-[1px]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
                 </div>
-                <div className="p-8 space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full gradient-primary flex-shrink-0" />
-                    <div className="bg-secondary p-4 rounded-2xl rounded-tl-none text-sm leading-relaxed">
-                      Based on your **Organic Chemistry** notes, the key difference in the reaction mechanism is the...
+                
+                <div className="relative z-10 w-full">
+                  <div className="p-6 bg-white/5 border-b border-white/5 flex items-center justify-between">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500/20" />
+                      <div className="w-3 h-3 rounded-full bg-amber-500/20" />
+                      <div className="w-3 h-3 rounded-full bg-emerald-500/20" />
                     </div>
+                    <div className="text-xs font-mono text-muted-foreground font-semibold">analyzer.study_ai</div>
                   </div>
-                  <div className="flex flex-wrap gap-2 justify-end">
-                    <Badge variant="outline" className="border-violet-500/30 text-violet-400">Analyzing Ch. 5</Badge>
-                    <Badge variant="outline" className="border-cyan-500/30 text-cyan-400">OCR: Active</Badge>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
-                    <div className="flex items-center gap-2 mb-2 text-emerald-400">
-                      <Sparkles className="w-4 h-4" />
-                      <span className="text-xs font-bold uppercase tracking-wider">Auto-Generated Flashcard</span>
+                  <div className="p-8 space-y-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full gradient-primary flex-shrink-0" />
+                      <div className="bg-secondary/80 backdrop-blur-md p-4 rounded-2xl rounded-tl-none text-sm leading-relaxed border border-white/5 shadow-lg">
+                        Based on your **Organic Chemistry** notes, the key difference in the reaction mechanism is the...
+                      </div>
                     </div>
-                    <p className="text-sm font-medium">Q: Define Markovnikov&apos;s Rule</p>
+                    <div className="flex flex-wrap gap-2 justify-end">
+                      <Badge variant="outline" className="border-violet-500/30 text-violet-400 bg-violet-500/5 backdrop-blur-md font-bold">Analyzing Ch. 5</Badge>
+                      <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-500/5 backdrop-blur-md font-bold">OCR: Active</Badge>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-md shadow-lg">
+                      <div className="flex items-center gap-2 mb-2 text-emerald-400">
+                        <Sparkles className="w-4 h-4" />
+                        <span className="text-xs font-black uppercase tracking-wider">Auto-Generated Flashcard</span>
+                      </div>
+                      <p className="text-sm font-semibold">Q: Define Markovnikov&apos;s Rule</p>
+                    </div>
                   </div>
                 </div>
               </div>

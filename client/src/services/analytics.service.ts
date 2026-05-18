@@ -6,6 +6,9 @@ export interface DashboardStats {
   flashcardProgress: { subject: string; mastery: number; total: number }[];
   productivityTrends: { day: string; focus: number; distraction: number }[];
   aiUsage: { name: string; value: number; fill: string }[];
+  streak: number;
+  chatSessions: number;
+  todaysGoals: { label: string; current: number; target: number; unit: string; color: string }[];
 }
 
 export const getDashboardStats = async () => {

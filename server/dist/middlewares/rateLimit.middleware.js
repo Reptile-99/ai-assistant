@@ -23,11 +23,14 @@ const rateLimitHandler = (req, res, _next, options) => {
 exports.aiRateLimiter = (0, express_rate_limit_1.rateLimit)({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS ?? '60000', 10),
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS ?? '20', 10),
-    standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
+    standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: (req) => {
-        // Key by authenticated user ID for fair per-user limiting
-        return req.user?.id ?? req.ip ?? 'unknown';
+        // Key by authenticated user ID; fall back to normalized IP
+        if (req.user?.id)
+            return req.user.id;
+        const ip = req.ip ?? req.socket?.remoteAddress ?? 'unknown';
+        return ip.replace(/^::ffff:/, '');
     },
     handler: rateLimitHandler,
     message: 'AI rate limit exceeded',
@@ -39,6 +42,10 @@ exports.globalRateLimiter = (0, express_rate_limit_1.rateLimit)({
     max: 100,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: (req) => {
+        const ip = req.ip ?? req.socket?.remoteAddress ?? 'unknown';
+        return ip.replace(/^::ffff:/, '');
+    },
     handler: rateLimitHandler,
     message: 'Global rate limit exceeded',
 });

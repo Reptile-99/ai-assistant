@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateAISchedule = exports.deleteExam = exports.updateExam = exports.createExam = exports.deleteTask = exports.updateTask = exports.createTask = exports.getPlannerData = void 0;
 const Task_1 = __importDefault(require("../models/Task"));
 const Exam_1 = __importDefault(require("../models/Exam"));
-const ai_service_1 = require("../services/ai.service");
+const ai_provider_1 = require("../services/ai.provider");
 const getPlannerData = async (req, res) => {
     try {
         const userId = req.user?._id;
@@ -86,7 +86,7 @@ const generateAISchedule = async (req, res) => {
         const userId = req.user?._id;
         const exams = await Exam_1.default.find({ userId });
         const examPayload = exams.map(e => ({ subject: e.subject, date: e.date.toISOString() }));
-        const { tasks } = await ai_service_1.openAIService.generateStudySchedule(examPayload, 7);
+        const { tasks } = await ai_provider_1.aiProvider.generateStudySchedule(examPayload, 7);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const createdTasks = await Promise.all(tasks.map(async (t) => {

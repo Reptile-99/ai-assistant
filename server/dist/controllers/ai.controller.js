@@ -12,6 +12,7 @@ exports.clearSummaryCache = exports.getAvailableSummaryTypes = exports.summarize
 const express_validator_1 = require("express-validator");
 const Document_1 = __importDefault(require("../models/Document"));
 const ai_service_1 = require("../services/ai.service");
+const ai_provider_1 = require("../services/ai.provider");
 const prompt_engine_1 = require("../services/prompt.engine");
 const error_middleware_1 = require("../middlewares/error.middleware");
 const token_optimizer_1 = require("../services/token.optimizer");
@@ -95,8 +96,8 @@ const summarizeDocument = async (req, res, next) => {
                 },
             });
         }
-        // Generate summary via OpenAI
-        const result = await ai_service_1.openAIService.summarize(document.content, summaryType, document.title);
+        // Generate summary via AI provider (Gemini first, OpenAI fallback)
+        const result = await ai_provider_1.aiProvider.summarize(document.content, summaryType, document.title);
         // Persist summary to document cache
         if (!document.summaries) {
             document.summaries = new Map();
@@ -117,6 +118,7 @@ const summarizeDocument = async (req, res, next) => {
                 cost: result.cost,
                 chunksProcessed: result.chunksProcessed,
                 model: result.model,
+                provider: result.provider,
                 documentTitle: document.title,
                 estimatedInputTokens: (0, token_optimizer_1.estimateTokens)(document.content),
             },
@@ -137,7 +139,7 @@ const summarizeText = async (req, res, next) => {
         return;
     try {
         const { text, summaryType, title = 'Provided Text' } = req.body;
-        const result = await ai_service_1.openAIService.summarize(text, summaryType, title);
+        const result = await ai_provider_1.aiProvider.summarize(text, summaryType, title);
         res.status(200).json({
             success: true,
             data: {
@@ -147,6 +149,7 @@ const summarizeText = async (req, res, next) => {
                 cost: result.cost,
                 chunksProcessed: result.chunksProcessed,
                 model: result.model,
+                provider: result.provider,
                 estimatedInputTokens: (0, token_optimizer_1.estimateTokens)(text),
             },
         });
