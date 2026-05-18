@@ -4,20 +4,36 @@ exports.pineconeService = void 0;
 const pinecone_1 = require("@pinecone-database/pinecone");
 class PineconeService {
     constructor() {
-        if (!process.env.PINECONE_API_KEY) {
-            console.warn('PINECONE_API_KEY is not set. PineconeService will fail.');
-        }
-        this.pinecone = new pinecone_1.Pinecone({
-            apiKey: process.env.PINECONE_API_KEY || '',
-        });
+        this.pinecone = null;
         this.indexName = process.env.PINECONE_INDEX_NAME || 'study-assistant';
         this.namespace = process.env.PINECONE_NAMESPACE || 'documents';
+        if (!process.env.PINECONE_API_KEY || process.env.PINECONE_API_KEY === 'your_pinecone_api_key') {
+            console.warn('PINECONE_API_KEY is not set or is a placeholder. PineconeService will be disabled.');
+            return;
+        }
+        try {
+            this.pinecone = new pinecone_1.Pinecone({
+                apiKey: process.env.PINECONE_API_KEY,
+            });
+        }
+        catch (error) {
+            console.error('Failed to initialize Pinecone:', error);
+        }
+    }
+    getIndex() {
+        if (!this.pinecone) {
+            console.error('Pinecone is not initialized. Please check your PINECONE_API_KEY.');
+            return null;
+        }
+        return this.pinecone.Index(this.indexName).namespace(this.namespace);
     }
     /**
      * Batch upsert vectors into Pinecone.
      */
     async upsertChunks(vectors) {
-        const index = this.pinecone.Index(this.indexName).namespace(this.namespace);
+        const index = this.getIndex();
+        if (!index)
+            return;
         // Pinecone recommends upserting in batches of ~100
         const batchSize = 100;
         for (let i = 0; i < vectors.length; i += batchSize) {
@@ -29,7 +45,9 @@ class PineconeService {
      * Query similar vectors.
      */
     async similaritySearch(queryEmbedding, topK, filter) {
-        const index = this.pinecone.Index(this.indexName).namespace(this.namespace);
+        const index = this.getIndex();
+        if (!index)
+            return [];
         const queryResponse = await index.query({
             topK,
             vector: queryEmbedding,
@@ -42,7 +60,9 @@ class PineconeService {
      * Delete all vectors for a specific document.
      */
     async deleteDocumentVectors(documentId, userId) {
-        const index = this.pinecone.Index(this.indexName).namespace(this.namespace);
+        const index = this.getIndex();
+        if (!index)
+            return;
         const filter = { documentId };
         if (userId) {
             filter.userId = userId;
@@ -81,7 +101,9 @@ class PineconeService {
      * Get index stats
      */
     async getIndexStats() {
-        const index = this.pinecone.Index(this.indexName);
+        const index = this.getIndex();
+        if (!index)
+            return null;
         return await index.describeIndexStats();
     }
 }

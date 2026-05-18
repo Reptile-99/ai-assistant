@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
-const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const db_1 = __importDefault(require("./config/db"));
@@ -33,7 +32,6 @@ app.use((0, cors_1.default)({
     credentials: true
 }));
 app.use(express_1.default.json({ limit: '10kb' })); // Body parser, reading data from body into req.body
-app.use((0, express_mongo_sanitize_1.default)()); // Data sanitization against NoSQL query injection
 app.use((0, cookie_parser_1.default)());
 app.use(rateLimit_middleware_1.globalRateLimiter);
 // Static folder

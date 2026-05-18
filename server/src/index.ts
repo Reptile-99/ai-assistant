@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import connectDB from './config/db';
@@ -32,7 +31,6 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json({ limit: '10kb' })); // Body parser, reading data from body into req.body
-app.use(mongoSanitize()); // Data sanitization against NoSQL query injection
 app.use(cookieParser());
 app.use(globalRateLimiter);
 

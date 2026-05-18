@@ -185,11 +185,6 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-
-          <div className="mt-8 p-4 bg-secondary/50 rounded-xl border border-border">
-            <p className="text-xs text-muted-foreground text-center mb-2 font-medium">Demo credentials</p>
-            <p className="text-xs text-center text-foreground">Any email + any password (6+ chars)</p>
-          </div>
         </motion.div>
       </div>
     </div>

@@ -29,14 +29,7 @@ exports.OpenAIServiceError = OpenAIServiceError;
 // ─── Service ──────────────────────────────────────────────────────────────────
 class OpenAIService {
     constructor() {
-        if (!process.env.OPENAI_API_KEY) {
-            throw new OpenAIServiceError('OPENAI_API_KEY is not set in environment variables', 'MISSING_API_KEY', 500);
-        }
-        this.client = new openai_1.default({
-            apiKey: process.env.OPENAI_API_KEY,
-            timeout: parseInt(process.env.OPENAI_TIMEOUT_MS ?? '30000', 10),
-            maxRetries: 0, // We handle retries manually for better control
-        });
+        this.client = null;
         this.config = {
             model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',
             maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS ?? '2000', 10),
@@ -44,6 +37,20 @@ class OpenAIService {
             maxRetries: 3,
             timeoutMs: parseInt(process.env.OPENAI_TIMEOUT_MS ?? '30000', 10),
         };
+        if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key') {
+            console.warn('OPENAI_API_KEY is not set or is a placeholder. OpenAIService will be limited.');
+            return;
+        }
+        try {
+            this.client = new openai_1.default({
+                apiKey: process.env.OPENAI_API_KEY,
+                timeout: this.config.timeoutMs,
+                maxRetries: 0, // We handle retries manually for better control
+            });
+        }
+        catch (error) {
+            console.error('Failed to initialize OpenAI client:', error);
+        }
     }
     /**
      * Main summarization method.
@@ -247,6 +254,9 @@ Requirements:
      * Retries on: rate limits (429), server errors (500/502/503).
      */
     async callWithRetry(fn, attempt = 0) {
+        if (!this.client) {
+            throw new OpenAIServiceError('OpenAI client is not initialized. Please check your API key.', 'CLIENT_NOT_INITIALIZED', 500);
+        }
         try {
             return await fn();
         }

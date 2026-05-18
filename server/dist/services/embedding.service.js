@@ -4,29 +4,43 @@ exports.embeddingService = void 0;
 const openai_1 = require("@langchain/openai");
 class EmbeddingService {
     constructor() {
+        this.embeddings = null;
         this.model = process.env.EMBEDDING_MODEL || 'text-embedding-3-small';
         this.dimensions = parseInt(process.env.EMBEDDING_DIMENSIONS || '1536', 10);
-        if (!process.env.OPENAI_API_KEY) {
-            console.warn('OPENAI_API_KEY is not set. EmbeddingService will fail.');
+        if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key') {
+            console.warn('OPENAI_API_KEY is not set or is a placeholder. EmbeddingService will be limited.');
+            return;
         }
-        this.embeddings = new openai_1.OpenAIEmbeddings({
-            openAIApiKey: process.env.OPENAI_API_KEY,
-            modelName: this.model,
-            dimensions: this.dimensions,
-            maxRetries: 3,
-        });
+        try {
+            this.embeddings = new openai_1.OpenAIEmbeddings({
+                openAIApiKey: process.env.OPENAI_API_KEY,
+                modelName: this.model,
+                dimensions: this.dimensions,
+                maxRetries: 3,
+            });
+        }
+        catch (error) {
+            console.error('Failed to initialize OpenAIEmbeddings:', error);
+        }
     }
     /**
      * Embeds a single text string.
      */
     async embedText(text) {
+        if (!this.embeddings) {
+            console.error('Embeddings client not initialized.');
+            return new Array(this.dimensions).fill(0);
+        }
         return await this.embeddings.embedQuery(text);
     }
     /**
      * Embeds an array of text strings.
-     * LangChain handles batching internally, but we can also manage it if needed.
      */
     async embedBatch(texts) {
+        if (!this.embeddings) {
+            console.error('Embeddings client not initialized.');
+            return texts.map(() => new Array(this.dimensions).fill(0));
+        }
         return await this.embeddings.embedDocuments(texts);
     }
     /**

@@ -23,7 +23,7 @@ export const sendTokenResponse = (user: any, statusCode: number, res: Response) 
     ),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' as const : 'lax' as const,
   };
 
   res
