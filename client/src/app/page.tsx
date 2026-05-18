@@ -428,9 +428,11 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-              <Button className="mt-12 group rounded-2xl h-12 px-8" variant="outline">
-                Explore Technology
-                <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <Button className="mt-12 group rounded-2xl h-12 px-8" variant="outline" asChild>
+                <Link href="/features/ai-engine">
+                  Explore Technology
+                  <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
               </Button>
             </div>
 

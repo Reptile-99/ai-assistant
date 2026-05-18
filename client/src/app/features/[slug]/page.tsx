@@ -253,6 +253,40 @@ const featuresData: Record<string, FeatureDetail> = {
       },
     ],
   },
+  "ai-engine": {
+    title: "AI Genius Engine",
+    subtitle: "A specialized hybrid model designed for academic mastery.",
+    description: "The heart of StudyAI. Our advanced Retrieval-Augmented Generation (RAG) system combined with vision processing and contextual routing does more than just chat. It acts as an elite, customized academic advisor in your pocket.",
+    icon: Sparkles,
+    color: "bg-violet-600",
+    glowColor: "from-violet-500/20 to-indigo-500/20",
+    whyItMatters: [
+      "Reads and understands thousands of pages of academic literature at once.",
+      "Processes formulas, diagrams, handwritten charts, and equations with vision AI.",
+      "Translates and explains concepts in 50+ languages natively.",
+      "Provides cited page-level proof for every claim it makes.",
+    ],
+    mockupTitle: "Advanced Contextual Reasoning Console",
+    mockupDescription: "Observe how the AI engine retrieves documents, extracts text with high-precision OCR, and validates answers.",
+    mockupType: "chat",
+    subfeatures: [
+      {
+        title: "Contextual RAG Routing",
+        description: "Analyzes questions, fetches matching text fragments, and structures responses cleanly.",
+        icon: Database,
+      },
+      {
+        title: "Bilingual OCR Parsing",
+        description: "Extracts formulas and handwritten diagrams in real time from image inputs.",
+        icon: Layers,
+      },
+      {
+        title: "Academic Summarization",
+        description: "Simplifies advanced university lectures into structured, high-yield study outlines.",
+        icon: Sparkles,
+      },
+    ],
+  },
 };
 
 export default function FeatureDetailsPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
