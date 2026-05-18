@@ -109,23 +109,40 @@ interface FeatureCardProps {
   title: string;
   description: string;
   color: string;
+  slug: string;
   delay: number;
 }
 
-const FeatureCard = ({ icon: Icon, title, description, color, delay }: FeatureCardProps) => (
+const FeatureCard = ({ icon: Icon, title, description, color, slug, delay }: FeatureCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ delay, duration: 0.5 }}
     whileHover={{ y: -5 }}
-    className="group relative p-8 rounded-3xl glass border border-white/5 hover:border-violet-500/30 transition-all overflow-hidden"
+    className="group relative p-8 rounded-3xl glass border border-white/5 hover:border-violet-500/30 flex flex-col justify-between h-full transition-all overflow-hidden"
   >
-    <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-      <Icon className="w-6 h-6 text-white" />
+    <div>
+      <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+      <h3 className="text-xl font-bold mb-3">{title}</h3>
+      <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
     </div>
-    <h3 className="text-xl font-bold mb-3">{title}</h3>
-    <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+    
+    <div className="mt-8 pt-4 border-t border-white/5 relative z-10 flex items-center justify-between">
+      <Button 
+        variant="ghost" 
+        className="h-10 px-4 -ml-4 rounded-xl text-violet-400 group-hover:text-violet-300 font-bold flex items-center gap-2 hover:bg-violet-500/10 border border-violet-500/0 hover:border-violet-500/20 transition-all duration-300" 
+        asChild
+      >
+        <Link href={`/features/${slug}`}>
+          Learn More
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+        </Link>
+      </Button>
+    </div>
+
     <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-20 transition-opacity">
       <Icon className="w-24 h-24 blur-2xl" />
     </div>
@@ -327,6 +344,7 @@ export default function LandingPage() {
               title="Smart Library"
               description="Upload PDFs, images, or notes. Our AI indexes everything so you can find anything in seconds."
               color="bg-blue-500"
+              slug="smart-library"
               delay={0.1}
             />
             <FeatureCard
@@ -334,6 +352,7 @@ export default function LandingPage() {
               title="Interactive AI Chat"
               description="Ask questions about your documents and get instant, cited answers with page references."
               color="bg-violet-500"
+              slug="ai-chat"
               delay={0.2}
             />
             <FeatureCard
@@ -341,6 +360,7 @@ export default function LandingPage() {
               title="Auto-Flashcards"
               description="AI automatically creates flashcards from your notes using spaced repetition algorithms."
               color="bg-emerald-500"
+              slug="flashcards"
               delay={0.3}
             />
             <FeatureCard
@@ -348,6 +368,7 @@ export default function LandingPage() {
               title="Adaptive Planner"
               description="A study schedule that automatically adjusts based on your learning speed and exam dates."
               color="bg-amber-500"
+              slug="planner"
               delay={0.4}
             />
             <FeatureCard
@@ -355,6 +376,7 @@ export default function LandingPage() {
               title="Knowledge Graph"
               description="Visualize how different concepts connect across all your subjects and documents."
               color="bg-pink-500"
+              slug="knowledge-graph"
               delay={0.5}
             />
             <FeatureCard
@@ -362,6 +384,7 @@ export default function LandingPage() {
               title="Privacy First"
               description="Your study materials are yours alone. We use enterprise-grade encryption to protect your data."
               color="bg-cyan-500"
+              slug="privacy"
               delay={0.6}
             />
           </div>
