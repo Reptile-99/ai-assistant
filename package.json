@@ -1,5 +1,13 @@
 {
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "install:all": "npm install && npm install --prefix client && npm install --prefix server",
+    "build": "npm run build --prefix client && npm run build --prefix server"
+  },
   "dependencies": {
     "mongodb": "^7.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
