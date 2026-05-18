@@ -18,10 +18,50 @@ services:
         generateValue: true
       - key: JWT_REFRESH_SECRET
         generateValue: true
+      # ── Gemini AI (FREE - Primary Provider) ──
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+      - key: GEMINI_MAX_TOKENS
+        value: 2048
+      - key: GEMINI_TEMPERATURE
+        value: 0.3
+      # ── OpenAI (Fallback Provider) ──
       - key: OPENAI_API_KEY
         sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_MAX_TOKENS
+        value: 2000
+      - key: OPENAI_TEMPERATURE
+        value: 0.3
+      - key: OPENAI_TIMEOUT_MS
+        value: 30000
+      # ── Pinecone ──
       - key: PINECONE_API_KEY
         sync: false
+      - key: PINECONE_ENVIRONMENT
+        sync: false
+      - key: PINECONE_INDEX_NAME
+        value: study-assistant
+      - key: PINECONE_NAMESPACE
+        value: documents
+      # ── RAG ──
+      - key: EMBEDDING_MODEL
+        value: text-embedding-3-small
+      - key: EMBEDDING_DIMENSIONS
+        value: 1536
+      - key: RAG_TOP_K
+        value: 5
+      - key: RAG_MIN_SCORE
+        value: 0.7
+      # ── Rate Limiting ──
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 60000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 20
+      # ── CORS ──
       - key: CLIENT_URL
         sync: false
 

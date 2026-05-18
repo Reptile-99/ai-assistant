@@ -1,7 +1,10 @@
+import dotenv from 'dotenv';
+// Load env vars FIRST — before any other imports that may initialize singletons
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import connectDB from './config/db';
 import authRoutes from './routes/auth.routes';
@@ -14,9 +17,6 @@ import pomodoroRoutes from './routes/pomodoro.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import errorHandler from './middlewares/error.middleware';
 import { globalRateLimiter } from './middlewares/rateLimit.middleware';
-
-// Load env vars
-dotenv.config();
 
 // Connect to database
 connectDB();

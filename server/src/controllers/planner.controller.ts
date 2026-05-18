@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Task from '../models/Task';
 import Exam from '../models/Exam';
-import { openAIService } from '../services/ai.service';
+import { aiProvider } from '../services/ai.provider';
 
 export const getPlannerData = async (req: Request, res: Response) => {
   try {
@@ -85,7 +85,7 @@ export const generateAISchedule = async (req: Request, res: Response) => {
     
     const examPayload = exams.map(e => ({ subject: e.subject, date: e.date.toISOString() }));
     
-    const { tasks } = await openAIService.generateStudySchedule(examPayload, 7);
+    const { tasks } = await aiProvider.generateStudySchedule(examPayload, 7);
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);

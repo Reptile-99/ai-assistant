@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
 import Document from '../models/Document';
 import Flashcard from '../models/Flashcard';
-import { openAIService } from '../services/ai.service';
+import { aiProvider } from '../services/ai.provider';
 import { ErrorResponse } from '../middlewares/error.middleware';
 
 // Validation Rules
@@ -38,7 +38,7 @@ export const generateFlashcards = async (req: any, res: Response, next: NextFunc
       return next(new ErrorResponse('Not authorized to access this document', 401));
     }
 
-    const result = await openAIService.generateFlashcards(document.content, count, difficulty, document.title);
+    const result = await aiProvider.generateFlashcards(document.content, count, difficulty, document.title);
 
     const flashcardsToInsert = result.flashcards.map((card: any) => ({
       userId: req.user.id,

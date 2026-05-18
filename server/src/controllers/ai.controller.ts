@@ -7,7 +7,8 @@
 import { Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
 import Document from '../models/Document';
-import { openAIService, OpenAIServiceError } from '../services/ai.service';
+import { OpenAIServiceError } from '../services/ai.service';
+import { aiProvider } from '../services/ai.provider';
 import { isValidSummaryType, SUMMARY_TYPE_DEFINITIONS, SummaryType } from '../services/prompt.engine';
 import { ErrorResponse } from '../middlewares/error.middleware';
 import { estimateTokens } from '../services/token.optimizer';
@@ -109,8 +110,8 @@ export const summarizeDocument = async (
       });
     }
 
-    // Generate summary via OpenAI
-    const result = await openAIService.summarize(
+    // Generate summary via AI provider (Gemini first, OpenAI fallback)
+    const result = await aiProvider.summarize(
       document.content,
       summaryType,
       document.title
@@ -137,6 +138,7 @@ export const summarizeDocument = async (
         cost: result.cost,
         chunksProcessed: result.chunksProcessed,
         model: result.model,
+        provider: result.provider,
         documentTitle: document.title,
         estimatedInputTokens: estimateTokens(document.content),
       },
@@ -165,7 +167,7 @@ export const summarizeText = async (
       title?: string;
     };
 
-    const result = await openAIService.summarize(text, summaryType, title);
+    const result = await aiProvider.summarize(text, summaryType, title);
 
     res.status(200).json({
       success: true,
@@ -176,6 +178,7 @@ export const summarizeText = async (
         cost: result.cost,
         chunksProcessed: result.chunksProcessed,
         model: result.model,
+        provider: result.provider,
         estimatedInputTokens: estimateTokens(text),
       },
     });
