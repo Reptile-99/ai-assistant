@@ -5,21 +5,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ragService = void 0;
 const uuid_1 = require("uuid");
-const openai_1 = require("@langchain/openai");
-const prompts_1 = require("@langchain/core/prompts");
-const output_parsers_1 = require("@langchain/core/output_parsers");
+const generative_ai_1 = require("@google/generative-ai");
 const embedding_service_1 = require("./embedding.service");
 const pinecone_service_1 = require("./pinecone.service");
 const token_optimizer_1 = require("./token.optimizer");
 const Document_1 = __importDefault(require("../models/Document"));
 class RAGService {
     constructor() {
-        this.chatModel = new openai_1.ChatOpenAI({
-            openAIApiKey: process.env.OPENAI_API_KEY,
-            modelName: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-            temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.3'),
-            maxRetries: 3,
-        });
+        this.client = null;
+        this.modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey || apiKey === 'your_gemini_api_key') {
+            console.warn('[RAGService] GEMINI_API_KEY is not set. RAGService will be disabled.');
+            return;
+        }
+        try {
+            this.client = new generative_ai_1.GoogleGenerativeAI(apiKey);
+            console.log(`[RAGService] ✅ Initialized with model: ${this.modelName}`);
+        }
+        catch (error) {
+            console.error('[RAGService] Failed to initialize GoogleGenerativeAI client:', error);
+        }
     }
     /**
      * Process and index a document into Pinecone.
@@ -28,8 +34,7 @@ class RAGService {
     async indexDocument(document) {
         console.log(`[RAG] Starting indexing for document ${document._id}...`);
         try {
-            // 1. Chunk the document text (using approx 500 tokens for RAG chunks)
-            // The token.optimizer's chunkText is based on maxTokens. Let's aim for 500 maxTokens per chunk for better semantic retrieval.
+            // 1. Chunk the document text (approx 500 tokens)
             const chunks = (0, token_optimizer_1.chunkText)(document.content, 500);
             console.log(`[RAG] Document ${document._id} split into ${chunks.length} chunks.`);
             if (chunks.length === 0) {
@@ -37,7 +42,6 @@ class RAGService {
                 return;
             }
             // 2. Generate embeddings for all chunks in batches
-            // Embed documents handles batching internally (usually 512-2048 per batch)
             const embeddings = await embedding_service_1.embeddingService.embedBatch(chunks);
             if (embeddings.length !== chunks.length) {
                 throw new Error('Mismatch between number of chunks and number of embeddings.');
@@ -77,12 +81,12 @@ class RAGService {
         }
     }
     /**
-     * Query the index and generate an answer using LangChain.
+     * Query the index and generate an answer using Gemini.
      */
     async queryDocuments(question, options = {}) {
         const topK = options.topK || parseInt(process.env.RAG_TOP_K || '5', 10);
         const minScore = options.minScore || parseFloat(process.env.RAG_MIN_SCORE || '0.7');
-        // 1. Embed the user's question
+        // 1. Embed the user's question using Gemini Embeddings
         const questionEmbedding = await embedding_service_1.embeddingService.embedText(question);
         // 2. Prepare filters
         const filter = {};
@@ -98,7 +102,7 @@ class RAGService {
             return {
                 answer: "I couldn't find any relevant information in your documents to answer this question. Please try rephrasing or uploading more documents.",
                 sources: [],
-                model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+                model: this.modelName,
             };
         }
         const sources = validMatches.map(match => {
@@ -114,28 +118,32 @@ class RAGService {
         const contextString = sources
             .map((source, idx) => `[Source ${idx + 1}: ${source.documentTitle}]\n${source.text}`)
             .join('\n\n');
-        // 5. Generate Answer using LangChain
-        const promptTemplate = prompts_1.PromptTemplate.fromTemplate(`
-You are an expert AI study assistant. Your goal is to answer the user's question accurately based ONLY on the provided context from their uploaded documents.
+        // 5. Generate Answer using Gemini
+        const prompt = `You are an expert AI study assistant. Your goal is to answer the user's question accurately based ONLY on the provided context from their uploaded documents.
 
 If the context does not contain the answer, politely state that you cannot answer based on the provided documents. Do not hallucinate or use outside knowledge.
 If you use information from the context, you can reference the source briefly (e.g., "According to [Document Title]...").
 
 Context:
-{context}
+${contextString}
 
-Question: {question}
-Answer:
-`);
-        const chain = promptTemplate.pipe(this.chatModel).pipe(new output_parsers_1.StringOutputParser());
-        const answer = await chain.invoke({
-            context: contextString,
-            question: question,
+Question: ${question}
+Answer:`;
+        if (!this.client) {
+            throw new Error('Gemini API client not initialized. Check your GEMINI_API_KEY.');
+        }
+        const model = this.client.getGenerativeModel({
+            model: this.modelName,
+            generationConfig: {
+                temperature: parseFloat(process.env.GEMINI_TEMPERATURE || '0.3'),
+            },
         });
+        const result = await model.generateContent(prompt);
+        const answer = result.response.text().trim();
         return {
             answer,
             sources,
-            model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+            model: this.modelName,
         };
     }
     /**

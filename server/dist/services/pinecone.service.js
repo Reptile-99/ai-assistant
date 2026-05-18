@@ -38,7 +38,7 @@ class PineconeService {
         const batchSize = 100;
         for (let i = 0; i < vectors.length; i += batchSize) {
             const batch = vectors.slice(i, i + batchSize);
-            await index.upsert(batch);
+            await index.upsert({ records: batch });
         }
     }
     /**
