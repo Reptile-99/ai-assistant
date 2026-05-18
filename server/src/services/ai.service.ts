@@ -60,6 +60,7 @@ export class OpenAIServiceError extends Error {
 class OpenAIService {
   private client: OpenAI | null = null;
   private config: OpenAIServiceConfig;
+  public isAvailable: boolean = false;
 
   constructor() {
     this.config = {
@@ -81,6 +82,7 @@ class OpenAIService {
         timeout: this.config.timeoutMs,
         maxRetries: 0, // We handle retries manually for better control
       });
+      this.isAvailable = true;
     } catch (error) {
       console.error('Failed to initialize OpenAI client:', error);
     }

@@ -30,6 +30,7 @@ exports.OpenAIServiceError = OpenAIServiceError;
 class OpenAIService {
     constructor() {
         this.client = null;
+        this.isAvailable = false;
         this.config = {
             model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',
             maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS ?? '2000', 10),
@@ -47,6 +48,7 @@ class OpenAIService {
                 timeout: this.config.timeoutMs,
                 maxRetries: 0, // We handle retries manually for better control
             });
+            this.isAvailable = true;
         }
         catch (error) {
             console.error('Failed to initialize OpenAI client:', error);
