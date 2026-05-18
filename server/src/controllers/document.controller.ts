@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
-const pdf = require('pdf-parse');
+const pdf = require('pdf-parse-new');
 import Document from '../models/Document';
 import { ErrorResponse } from '../middlewares/error.middleware';
 import { ragService } from '../services/rag.service';
