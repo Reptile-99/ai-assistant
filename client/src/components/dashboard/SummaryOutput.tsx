@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Copy,
@@ -14,6 +15,7 @@ import {
   Clock,
   DollarSign,
   ChevronDown,
+  Eye,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -29,6 +31,7 @@ interface SummaryOutputProps {
   onCopy: () => Promise<boolean>;
   onDownload: () => void;
   onRegenerate: () => void;
+  documentId?: string;
 }
 
 const typeAccent: Record<SummaryType, string> = {
@@ -92,126 +95,139 @@ export function SummaryOutput({
   isCached,
   selectedType,
   onCopy,
-  onDownload,
-  onRegenerate,
-}: SummaryOutputProps) {
-  const [copied, setCopied] = useState(false);
-  const [statsOpen, setStatsOpen] = useState(false);
-
-  const handleCopy = async () => {
-    const ok = await onCopy();
-    if (ok) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const isLoading = state === 'loading';
-  const isTyping = state === 'typing';
-  const isDone = state === 'done';
-  const isActive = isLoading || isTyping || isDone;
-
-  if (!isActive && state !== 'idle') return null;
-  if (state === 'idle') return null;
-
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key="output"
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 12 }}
-        transition={{ duration: 0.4, ease: 'easeOut' as const }}
-        className={cn(
-          'rounded-3xl border bg-gradient-to-br shadow-xl overflow-hidden',
-          typeAccent[selectedType],
-          typeGlow[selectedType]
-        )}
-      >
-        {/* Header bar */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/50">
-          <div className="flex items-center gap-2.5">
-            {/* AI pulse orb */}
-            <div className="relative">
-              <motion.div
-                animate={isTyping ? { scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] } : {}}
-                transition={{ duration: 1.2, repeat: Infinity }}
-                className="w-2.5 h-2.5 rounded-full bg-violet-400"
-              />
-              {isTyping && (
-                <motion.div
-                  animate={{ scale: [1, 2.5], opacity: [0.5, 0] }}
-                  transition={{ duration: 1.2, repeat: Infinity }}
-                  className="absolute inset-0 rounded-full bg-violet-400"
-                />
-              )}
-            </div>
-
-            <span className="text-sm font-semibold text-foreground/80">
-              {isLoading ? 'Generating…' : isTyping ? 'AI Writing…' : 'Summary Ready'}
-            </span>
-
-            {isCached && isDone && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 font-medium">
-                Cached
-              </span>
-            )}
-          </div>
-
-          {/* Actions */}
-          {isDone && (
-            <div className="flex items-center gap-1.5">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCopy}
-                className="h-8 gap-1.5 text-xs rounded-xl"
-              >
+              onDownload,
+              onRegenerate,
+              documentId,
+            }: SummaryOutputProps) {
+              const [copied, setCopied] = useState(false);
+              const [statsOpen, setStatsOpen] = useState(false);
+            
+              const handleCopy = async () => {
+                const ok = await onCopy();
+                if (ok) {
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }
+              };
+            
+              const isLoading = state === 'loading';
+              const isTyping = state === 'typing';
+              const isDone = state === 'done';
+              const isActive = isLoading || isTyping || isDone;
+            
+              if (!isActive && state !== 'idle') return null;
+              if (state === 'idle') return null;
+            
+              return (
                 <AnimatePresence mode="wait">
-                  {copied ? (
-                    <motion.span
-                      key="check"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="flex items-center gap-1.5 text-emerald-400"
-                    >
-                      <Check className="w-3.5 h-3.5" /> Copied!
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="copy"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="flex items-center gap-1.5"
-                    >
-                      <Copy className="w-3.5 h-3.5" /> Copy
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onDownload}
-                className="h-8 gap-1.5 text-xs rounded-xl"
-              >
-                <Download className="w-3.5 h-3.5" /> Save
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onRegenerate}
-                className="h-8 gap-1.5 text-xs rounded-xl text-muted-foreground hover:text-foreground"
-              >
-                <RefreshCw className="w-3.5 h-3.5" /> Redo
-              </Button>
-            </div>
-          )}
-        </div>
+                  <motion.div
+                    key="output"
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 12 }}
+                    transition={{ duration: 0.4, ease: 'easeOut' as const }}
+                    className={cn(
+                      'rounded-3xl border bg-gradient-to-br shadow-xl overflow-hidden',
+                      typeAccent[selectedType],
+                      typeGlow[selectedType]
+                    )}
+                  >
+                    {/* Header bar */}
+                    <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/50">
+                      <div className="flex items-center gap-2.5">
+                        {/* AI pulse orb */}
+                        <div className="relative">
+                          <motion.div
+                            animate={isTyping ? { scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] } : {}}
+                            transition={{ duration: 1.2, repeat: Infinity }}
+                            className="w-2.5 h-2.5 rounded-full bg-violet-400"
+                          />
+                          {isTyping && (
+                            <motion.div
+                              animate={{ scale: [1, 2.5], opacity: [0.5, 0] }}
+                              transition={{ duration: 1.2, repeat: Infinity }}
+                              className="absolute inset-0 rounded-full bg-violet-400"
+                            />
+                          )}
+                        </div>
+            
+                        <span className="text-sm font-semibold text-foreground/80">
+                          {isLoading ? 'Generating…' : isTyping ? 'AI Writing…' : 'Summary Ready'}
+                        </span>
+            
+                        {isCached && isDone && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 font-medium">
+                            Cached
+                          </span>
+                        )}
+                      </div>
+            
+                      {/* Actions */}
+                      {isDone && (
+                        <div className="flex items-center gap-1.5">
+                          {documentId && (
+                            <Link href={`/documents/${documentId}`}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 gap-1.5 text-xs rounded-xl text-violet-400 hover:text-violet-300 hover:bg-violet-500/5 font-bold"
+                              >
+                                <Eye className="w-3.5 h-3.5" /> View Split-Screen
+                              </Button>
+                            </Link>
+                          )}
+            
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCopy}
+                            className="h-8 gap-1.5 text-xs rounded-xl"
+                          >
+                            <AnimatePresence mode="wait">
+                              {copied ? (
+                                <motion.span
+                                  key="check"
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  exit={{ scale: 0 }}
+                                  className="flex items-center gap-1.5 text-emerald-400"
+                                >
+                                  <Check className="w-3.5 h-3.5" /> Copied!
+                                </motion.span>
+                              ) : (
+                                <motion.span
+                                  key="copy"
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  exit={{ scale: 0 }}
+                                  className="flex items-center gap-1.5"
+                                >
+                                  <Copy className="w-3.5 h-3.5" /> Copy
+                                </motion.span>
+                              )}
+                            </AnimatePresence>
+                          </Button>
+            
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onDownload}
+                            className="h-8 gap-1.5 text-xs rounded-xl"
+                          >
+                            <Download className="w-3.5 h-3.5" /> Save
+                          </Button>
+            
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onRegenerate}
+                            className="h-8 gap-1.5 text-xs rounded-xl text-muted-foreground hover:text-foreground"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" /> Redo
+                          </Button>
+                        </div>
+                      )}
+                    </div>
 
         {/* Content body */}
         <div className="min-h-[200px] relative">

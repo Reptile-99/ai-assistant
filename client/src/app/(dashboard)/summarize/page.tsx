@@ -311,6 +311,7 @@ export default function SummarizePage() {
                 onCopy={copyToClipboard}
                 onDownload={downloadAsMarkdown}
                 onRegenerate={regenerate}
+                documentId={selectedDocumentId}
               />
             </motion.div>
           </div>

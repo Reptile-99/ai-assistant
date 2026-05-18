@@ -377,33 +377,34 @@ export default function DashboardPage() {
             {documents.length > 0 ? (
               <div className="divide-y divide-white/5">
                 {documents.slice(0, 4).map((doc, i) => (
-                  <motion.div
-                    key={doc._id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                    className="flex items-center gap-4 p-4 hover:bg-white/[0.02] transition-colors cursor-pointer group"
-                  >
-                    <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner group-hover:scale-105 transition-transform">
-                      <FileText className="w-5 h-5 text-blue-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate group-hover:text-violet-400 transition-colors">{doc.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
-                        <span>{doc.pageCount} pages</span>
-                        <span>•</span>
-                        <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge variant="secondary" className="bg-white/5 text-[10px] px-2 py-0.5 rounded border-white/5 text-muted-foreground uppercase font-bold">
-                        PDF
-                      </Badge>
-                      <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <ArrowRight className="w-4 h-4 text-violet-400" />
+                  <Link href={`/documents/${doc._id}`} key={doc._id} className="block">
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="flex items-center gap-4 p-4 hover:bg-white/[0.02] transition-colors cursor-pointer group"
+                    >
+                      <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+                        <FileText className="w-5 h-5 text-blue-400" />
                       </div>
-                    </div>
-                  </motion.div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate group-hover:text-violet-400 transition-colors">{doc.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
+                          <span>{doc.pageCount} pages</span>
+                          <span>•</span>
+                          <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="secondary" className="bg-white/5 text-[10px] px-2 py-0.5 rounded border-white/5 text-muted-foreground uppercase font-bold">
+                          PDF
+                        </Badge>
+                        <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ArrowRight className="w-4 h-4 text-violet-400" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  </Link>
                 ))}
               </div>
             ) : (

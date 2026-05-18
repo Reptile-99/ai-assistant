@@ -52,6 +52,7 @@ export interface Document {
   _id: string;
   title: string;
   fileUrl: string;
+  content: string;
   fileSize: number;
   pageCount: number;
   createdAt: string;
@@ -68,6 +69,12 @@ export async function getSummaryTypes(): Promise<SummaryTypeInfo[]> {
 // Fetch all user documents
 export async function getDocuments(): Promise<Document[]> {
   const res = await api.get('/documents');
+  return res.data.data;
+}
+
+// Fetch a single user document by ID
+export async function getDocument(id: string): Promise<Document> {
+  const res = await api.get(`/documents/${id}`);
   return res.data.data;
 }
 
