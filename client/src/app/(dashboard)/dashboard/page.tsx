@@ -71,9 +71,9 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  const totalMastered = analytics?.flashcardProgress.reduce((sum, p) => sum + Math.round((p.mastery / 100) * p.total), 0) || 0;
-  const totalCards = analytics?.flashcardProgress.reduce((sum, p) => sum + p.total, 0) || 0;
-  const totalHours = analytics?.studyHours.reduce((sum, h) => sum + h.hours, 0) || 0;
+  const totalMastered = analytics?.flashcardProgress?.reduce((sum, p) => sum + Math.round((p.mastery / 100) * p.total), 0) || 0;
+  const totalCards = analytics?.flashcardProgress?.reduce((sum, p) => sum + p.total, 0) || 0;
+  const totalHours = analytics?.studyHours?.reduce((sum, h) => sum + h.hours, 0) || 0;
 
   const stats = [
     {
@@ -310,7 +310,7 @@ export default function DashboardPage() {
                 <div className="flex items-end gap-1.5 h-20 mb-4 px-2">
                   {(analytics?.studyHours || [0, 0, 0, 0, 0, 0, 0]).map((h: number | { hours: number; day: string }, i: number) => {
                     const val = typeof h === 'number' ? h : h.hours;
-                    const maxHours = Math.max(...(analytics?.studyHours.map(sh => sh.hours) || [1]));
+                    const maxHours = Math.max(...(analytics?.studyHours?.map(sh => sh.hours) || [1]));
                     const height = maxHours > 0 ? (val / maxHours) * 100 : 0;
                     return (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group relative">
