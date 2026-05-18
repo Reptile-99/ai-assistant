@@ -1,0 +1,193 @@
+'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  SummaryType,
+  SummaryResult,
+  Document,
+  SummaryTypeInfo,
+  getSummaryTypes,
+  getDocuments,
+  summarizeDocument,
+  clearSummaryCache,
+} from '@/services/ai.service';
+
+export type SummaryState = 'idle' | 'loading' | 'typing' | 'done' | 'error';
+
+interface UseAISummaryReturn {
+  // Data
+  documents: Document[];
+  summaryTypes: SummaryTypeInfo[];
+  selectedDocumentId: string;
+  selectedType: SummaryType;
+  result: SummaryResult | null;
+  displayedText: string;     // The animated typing text
+  state: SummaryState;
+  error: string | null;
+  isCached: boolean;
+
+  // Actions
+  setSelectedDocumentId: (id: string) => void;
+  setSelectedType: (type: SummaryType) => void;
+  generate: () => Promise<void>;
+  regenerate: () => Promise<void>;
+  copyToClipboard: () => Promise<boolean>;
+  downloadAsMarkdown: () => void;
+  reset: () => void;
+}
+
+const TYPING_SPEED_MS = 8; // ms per character burst
+const CHARS_PER_TICK = 4;  // characters revealed per tick
+
+export function useAISummary(): UseAISummaryReturn {
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [summaryTypes, setSummaryTypes] = useState<SummaryTypeInfo[]>([]);
+  const [selectedDocumentId, setSelectedDocumentId] = useState('');
+  const [selectedType, setSelectedType] = useState<SummaryType>('short');
+  const [result, setResult] = useState<SummaryResult | null>(null);
+  const [displayedText, setDisplayedText] = useState('');
+  const [state, setState] = useState<SummaryState>('idle');
+  const [error, setError] = useState<string | null>(null);
+  const [isCached, setIsCached] = useState(false);
+
+  const typingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const fullTextRef = useRef('');
+
+  // Load documents and summary types on mount
+  useEffect(() => {
+    Promise.all([getDocuments(), getSummaryTypes()])
+      .then(([docs, types]) => {
+        setDocuments(docs);
+        setSummaryTypes(types);
+        if (docs.length > 0) setSelectedDocumentId(docs[0]._id);
+      })
+      .catch(console.error);
+  }, []);
+
+  // Cleanup typing interval on unmount
+  useEffect(() => {
+    return () => {
+      if (typingRef.current) clearInterval(typingRef.current);
+    };
+  }, []);
+
+  const startTypingEffect = useCallback((text: string, isInstant = false) => {
+    if (typingRef.current) clearInterval(typingRef.current);
+    fullTextRef.current = text;
+
+    if (isInstant) {
+      setDisplayedText(text);
+      setState('done');
+      return;
+    }
+
+    setState('typing');
+    let index = 0;
+    setDisplayedText('');
+
+    typingRef.current = setInterval(() => {
+      index = Math.min(index + CHARS_PER_TICK, text.length);
+      setDisplayedText(text.slice(0, index));
+
+      if (index >= text.length) {
+        if (typingRef.current) clearInterval(typingRef.current);
+        setState('done');
+      }
+    }, TYPING_SPEED_MS);
+  }, []);
+
+  const generate = useCallback(async () => {
+    if (!selectedDocumentId || !selectedType) return;
+    if (typingRef.current) clearInterval(typingRef.current);
+
+    setState('loading');
+    setError(null);
+    setDisplayedText('');
+    setResult(null);
+
+    try {
+      const { data, cached } = await summarizeDocument(selectedDocumentId, selectedType);
+      setResult(data);
+      setIsCached(cached);
+      // Cached results appear instantly; fresh ones get the typing effect
+      startTypingEffect(data.summary, cached);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.error ||
+        err?.response?.data?.errors?.[0]?.message ||
+        'Failed to generate summary. Please try again.';
+      setError(message);
+      setState('error');
+    }
+  }, [selectedDocumentId, selectedType, startTypingEffect]);
+
+  const regenerate = useCallback(async () => {
+    if (!selectedDocumentId || !selectedType) return;
+    // Clear server cache first, then regenerate
+    try {
+      await clearSummaryCache(selectedDocumentId, selectedType);
+    } catch {
+      // Proceed even if cache clear fails
+    }
+    await generate();
+  }, [selectedDocumentId, selectedType, generate]);
+
+  const copyToClipboard = useCallback(async (): Promise<boolean> => {
+    const text = result?.summary ?? displayedText;
+    if (!text) return false;
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [result, displayedText]);
+
+  const downloadAsMarkdown = useCallback(() => {
+    const text = result?.summary ?? displayedText;
+    if (!text) return;
+
+    const doc = documents.find((d) => d._id === selectedDocumentId);
+    const typeLabel = summaryTypes.find((t) => t.id === selectedType)?.label ?? selectedType;
+    const filename = `${doc?.title ?? 'summary'}-${typeLabel}.md`
+      .toLowerCase()
+      .replace(/[^a-z0-9.\-]+/g, '-');
+
+    const header = `# ${typeLabel}: ${doc?.title ?? 'Summary'}\n\n> Generated by StudyAI · ${new Date().toLocaleDateString()}\n\n---\n\n`;
+    const blob = new Blob([header + text], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [result, displayedText, documents, selectedDocumentId, summaryTypes, selectedType]);
+
+  const reset = useCallback(() => {
+    if (typingRef.current) clearInterval(typingRef.current);
+    setResult(null);
+    setDisplayedText('');
+    setError(null);
+    setState('idle');
+    setIsCached(false);
+  }, []);
+
+  return {
+    documents,
+    summaryTypes,
+    selectedDocumentId,
+    selectedType,
+    result,
+    displayedText,
+    state,
+    error,
+    isCached,
+    setSelectedDocumentId,
+    setSelectedType,
+    generate,
+    regenerate,
+    copyToClipboard,
+    downloadAsMarkdown,
+    reset,
+  };
+}
