@@ -611,7 +611,7 @@ export default function LandingPage() {
               <h2 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight">Ready to transform your grades?</h2>
               <p className="text-white/80 text-lg mb-12 font-medium">Join 50,000+ students and start studying smarter today. No credit card required to start.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button size="lg" className="h-14 px-10 text-lg font-black bg-white text-violet-600 hover:bg-white/90 rounded-2xl shadow-2xl" asChild>
+                <Button size="lg" variant="outline" className="h-14 px-10 text-lg font-black bg-white text-violet-700 hover:bg-white/90 hover:text-violet-800 border-none rounded-2xl shadow-2xl" asChild>
                   <Link href="/register">Start for Free</Link>
                 </Button>
                 <Button size="lg" variant="ghost" className="h-14 px-10 text-lg font-bold text-white hover:bg-white/10 rounded-2xl" id="contact-sales">

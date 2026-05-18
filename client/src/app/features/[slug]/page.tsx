@@ -585,7 +585,7 @@ export default function FeatureDetailsPage({ params: paramsPromise }: { params: 
             <h2 className="text-3xl md:text-5xl font-black text-white mb-6">Experience {feature.title} Live</h2>
             <p className="text-white/80 text-base md:text-lg mb-10 max-w-xl mx-auto">Boost your cognitive retention and unlock your learning potential with your premium AI study companion. Free to start.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" className="h-14 px-10 text-lg font-black bg-white text-violet-700 hover:bg-white/90 rounded-2xl shadow-xl" asChild>
+              <Button size="lg" variant="outline" className="h-14 px-10 text-lg font-black bg-white text-violet-700 hover:bg-white/90 hover:text-violet-800 border-none rounded-2xl shadow-xl" asChild>
                 <Link href="/register">Start Using Now</Link>
               </Button>
               <Button size="lg" variant="ghost" className="h-14 px-10 text-lg font-bold text-white hover:bg-white/10 rounded-2xl" asChild>
