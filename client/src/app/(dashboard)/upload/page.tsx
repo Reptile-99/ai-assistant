@@ -90,6 +90,9 @@ export default function UploadPage() {
 
     try {
       const response = await api.post("/documents/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         onUploadProgress: (progressEvent) => {
           const progress = progressEvent.total
             ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
