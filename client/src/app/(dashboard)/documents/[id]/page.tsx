@@ -31,6 +31,20 @@ import { getDocument, summarizeDocument, clearSummaryCache, Document, SummaryTyp
 import { getFlashcards, generateFlashcards, Flashcard } from "@/services/flashcard.service";
 import { queryRAG, RAGQueryResult } from "@/services/ai.service";
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
+
+const ReactPDFViewer = dynamic(
+  () => import("@/components/dashboard/ReactPDFViewer"),
+  { 
+    ssr: false, 
+    loading: () => (
+      <div className="flex flex-col items-center justify-center h-full gap-3 bg-neutral-950/20">
+        <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+        <p className="text-xs text-muted-foreground animate-pulse">Loading custom PDF engine...</p>
+      </div>
+    )
+  }
+);
 
 // Message interface for local chat state
 interface ChatMessage {
@@ -350,12 +364,8 @@ export default function DocumentViewerPage() {
               Open in new tab
             </Button>
           </CardHeader>
-          <div className="flex-1 bg-neutral-900/50 relative">
-            <iframe
-              src={`${pdfUrl}#toolbar=1`}
-              className="w-full h-full border-0 absolute inset-0"
-              title={document.title}
-            />
+          <div className="flex-1 bg-neutral-900/50 relative overflow-hidden">
+            <ReactPDFViewer url={pdfUrl} title={document.title} />
           </div>
         </Card>
 
