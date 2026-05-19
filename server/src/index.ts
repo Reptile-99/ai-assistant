@@ -28,7 +28,11 @@ app.set('trust proxy', 1); // Trust first proxy (required for Render)
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(helmet()); // Set security HTTP headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  frameguard: false,
+  contentSecurityPolicy: false
+})); // Set security HTTP headers allowing cross-origin embeds and iframes
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3001',
   credentials: true
