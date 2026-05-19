@@ -41,8 +41,14 @@ app.use(express.json({ limit: '10kb' })); // Body parser, reading data from body
 app.use(cookieParser());
 app.use(globalRateLimiter);
 
-// Static folder
-app.use('/uploads', express.static('uploads'));
+// Static folder with explicit CORS headers to allow cross-origin fetch/canvas rendering
+app.use('/uploads', express.static('uploads', {
+  setHeaders: (res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
+}));
 
 // Routes
 app.use('/api/auth', authRoutes);
